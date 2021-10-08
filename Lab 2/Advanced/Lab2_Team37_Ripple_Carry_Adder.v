@@ -15,7 +15,7 @@ module Ripple_Carry_Adder(a, b, cin, cout, sum);
     Full_Adder fa4(a[4],b[4],w3,w4,s[4]);
     Full_Adder fa5(a[5],b[5],w4,w5,s[5]);
     Full_Adder fa6(a[6],b[6],w5,w6,s[6]);
-    Full_Adder fa7(a[7],b[7],w6,w7,s[7]);
+    Full_Adder fa7(a[7],b[7],w6,cout,s[7]);
     
 endmodule
 
