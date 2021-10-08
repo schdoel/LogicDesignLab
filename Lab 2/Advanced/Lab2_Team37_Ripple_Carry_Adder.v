@@ -8,14 +8,14 @@ module Ripple_Carry_Adder(a, b, cin, cout, sum);
 
     wire w0, w1, w2, w3, w4, w5, w6, w7;
 
-    Full_Adder fa0(a[0],b[0],cin,w0,s[0]);
-    Full_Adder fa1(a[1],b[1],w0,w1,s[1]);
-    Full_Adder fa2(a[2],b[2],w1,w2,s[2]);
-    Full_Adder fa3(a[3],b[3],w2,w3,s[3]);
-    Full_Adder fa4(a[4],b[4],w3,w4,s[4]);
-    Full_Adder fa5(a[5],b[5],w4,w5,s[5]);
-    Full_Adder fa6(a[6],b[6],w5,w6,s[6]);
-    Full_Adder fa7(a[7],b[7],w6,cout,s[7]);
+    Full_Adder fa0(a[0],b[0],cin,w0,sum[0]);
+    Full_Adder fa1(a[1],b[1],w0,w1,sum[1]);
+    Full_Adder fa2(a[2],b[2],w1,w2,sum[2]);
+    Full_Adder fa3(a[3],b[3],w2,w3,sum[3]);
+    Full_Adder fa4(a[4],b[4],w3,w4,sum[4]);
+    Full_Adder fa5(a[5],b[5],w4,w5,sum[5]);
+    Full_Adder fa6(a[6],b[6],w5,w6,sum[6]);
+    Full_Adder fa7(a[7],b[7],w6,cout,sum[7]);
     
 endmodule
 
