@@ -3,38 +3,28 @@
 module Multiplier_4bit(a, b, p);
     input [3:0] a, b;
     output [7:0] p;
-    wire [3:0] A,B,S;
-    wire c;
+    wire [3:0] A0,A1,A2,A3,B0,B1;
 
-    AND P0(p[0],a[0],b[0]);
-
-    AND b0a1(B[0],a[1],b[0]);
-    AND b1a2(B[1],a[2],b[0]);
-    AND b2a3(B[2],a[3],b[0]);
-    AND b3_0(B[3],1'b0, 1'b0);
-
-    AND b1a0(A[0],a[0],b[1]);
-    AND b1a1(A[1],a[1],b[1]);
-    AND b1a2(A[2],a[2],b[1]);
-    AND b1a3(A[3],a[3],b[1]);
-
-    Full_Adder_4bit FA1(A,B,0,c,S);
-
-    AND b2a0(A[0],a[0],b[2]);
-    AND b2a1(A[1],a[1],b[2]);
-    AND b2a2(A[2],a[2],b[2]);
-    AND b2a3(A[3],a[3],b[2]);
-
-    AND b0(A[0],a[0],b[2]);
-    AND b1(A[1],a[1],b[2]);
-    AND b2(A[2],a[2],b[2]);
-    AND b3(A[3],a[3],b[2]);
+    AND_bitwise4x1 b0 (a[3:0],b[0],{A0[3:1],p[0]});
+    AND_bitwise4x1 b1 (a[3:0],b[1],A1[3:0]);
+    AND_bitwise4x1 b2 (a[3:0],b[2],A2[3:0]);
+    AND_bitwise4x1 b3 (a[3:0],b[3],A3[3:0]);
     
-    Full_Adder_4bit FA2()
+    Full_Adder_4bit fa0(A1[3:0],{1'b0,A0[3:1]},1'b0,B0[3],{B0[2:0],p[1]});
+    Full_Adder_4bit fa1(A2[3:0],B0[3:0],1'b0,B1[3],{B1[2:0],p[2]});
+    Full_Adder_4bit fa1(A3[3:0],B1[3:0],1'b0,p[7],p[6:3]);
 
+endmodule
 
+module AND_bitwise4x1 (a,b,out);
+    input [3:0] a;
+    input b;
+    output [3:0] out;
 
-
+    AND a0 (out[0],a[0],b);
+    AND a1 (out[1],a[1],b);
+    AND a2 (out[2],a[2],b);
+    AND a3 (out[3],a[3],b);
 endmodule
 
 module Full_Adder_4bit (a,b,cin,cout,sum);
