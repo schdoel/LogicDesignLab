@@ -1,4 +1,4 @@
-`timescale 1ns/1ps
+timescale 1ns/1ps
 
 module Carry_Look_Ahead_Adder_8bit(a, b, c0, s, c8);
 input [7:0] a, b;
@@ -6,72 +6,92 @@ input c0;
 output [7:0] s;
 output c8;
 
+wire [7:0] c;
+wire [7:0] p,g;
 
-// Carry  (C): Ci+1=Gi+Pi
-//capek lah udahlah bingung jadinya apsih maunya huh
+Full_Adder_PG fa0 (a[0], b[0], c0 , s[0], p[0], g[0]);
+Full_Adder_PG fa1 (a[1], b[1], c[1], s[1], p[1], g[1]);
+Full_Adder_PG fa2 (a[2], b[2], c[2], s[2], p[2], g[2]);
+Full_Adder_PG fa3 (a[3], b[3], c[3], s[3], p[3], g[3]);
 
+Full_Adder_PG fa4 (a[4], b[4], c[4], s[4], p[4], g[4]);
+Full_Adder_PG fa5 (a[5], b[5], c[5], s[5], p[5], g[5]);
+Full_Adder_PG fa6 (a[6], b[6], c[6], s[6], p[6], g[6]);
+Full_Adder_PG fa7 (a[7], b[7], c[7], s[7], p[7], g[7]);
 
+C4_Generator cg0 (c0,p[3:0],g[3:0],c4);
+C4_Generator cg1 (c4,p[7:4),g[7:4],c8);
 
+Carry_Gen_4bit cg30 (.c_in(c[0]),.p_in([3:0]),.g_in,.c(c[3:1]));
+Carry_Gen_4bit cg74 (.c_in(c[4]),.p_in([7:4]),.g_in,.c(c[7:5]));
 
 endmodule
 
-module Carry_Look_Ahead_Adder_2bit(a,b,c0,s,c2);
-    input[1:0] a,b;
-    input c0;
-    output[1:0] s;
-    output c2;
+// Generate c1,c2,c3 instantly
+module Carry_Gen_4bit(c_in,p_in,g_in,c_out);
+input c_in;
+input [3:0] p_in, g_in;
+output [3:1] c_out;
 
-    
+wire w0,w10,w11,w12,w20,w21,w22,w23;
+wire o;
+//c_out [1]
+AND oa00 (w0,p[0],c_in);
+OR oo00 (c_out[1], w0, g[0]);
+//c_out [2]
+AND oa10 (w10,w0,p[1]);
+AND oa11 (w11,g[0],p[1]);
+OR oo10 (w12,w10,w11);
+OR oo12 (c_out[2],g[1],w12);
+//c_out [3]
+AND oa20 (w20,w10,p[2]);
+AND oa21 (w21,w11,p[2]);
+AND oa22 (w22,g[1],p[2]);
+OR oo20 (w23,w20,w21);
+OR oo21 (w24,w23,w22);
+OR oo22 (c_out[3],g[2],w24);
 endmodule
 
-module Carry_Look_Ahead_Adder_4bit(a,b,c0,s,c4);
-    input[3:0] a,b;
-    input c0;
-    output[3:0] s;
-    output c4;
+// Generate c4 instantly
+module C4_Generator(c0,p,g,c4);
+input c0;
+input [3:0] p, g;
+output c4;
 
-    wire [4:0] wc;
-    
-    // Carry  (C): Ci+1=Gi+Pi
-    Carry c1(a[0],b[0],c0,wc[0]);
-    Carry c2(a[1],b[1],wc[0],wc[1]);
-    Carry c3(a[2],b[2],wc[1],wc[2]);
-    Carry c4(a[3],b[3],wc[2],wc[3]);
+wire w0,w10,w11,w12,w20,w21,w22,w23,w30,w31,w32,w33;
+wire o0,o1;
 
-    // Full adder
-    Full_Adder fa1(a[0],b[0],c0,s[0]);
-    Full_Adder fa2(a[1],b[1],wc[1],s[1]);
-    Full_Adder fa3(a[2],b[2],wc[2],s[2]);
-    Full_Adder fa4(a[3],b[3],wc[3],s[3]);
+AND oa00 (w0,p[0],c_in);
 
-    AND result(),
-endmodule
+AND oa10 (w10,w0,p[1]);
+AND oa11 (w11,g[0],p[1]);
 
-module Carry(a,b,c,cout);
-    input a,b,c;
-    output cout;
+AND oa20 (w20,w10,p[2]);
+AND oa21 (w21,w11,p[2]);
+AND oa22 (w22,g[1],p[2]);
 
-    wire and_ab, xor_ab, and_CxorAB;
-    // Generate (G): Gi=AiBi
-    AND G(and_ab, a, b);
-    // Propagate (P): Pi=Ai+Bi
-    XOR P(xor_ab, a, b);
-    AND andCxorAB(and_CxorAB, c, xor_ab);
-    // Carry  (C): Ci+1=Gi+Pi
-    OR outputOR(cout, and_CxorAB, andAB);
+AND oa30 (w30,w20,p[3]);
+AND oa31 (w31,w21,p[3]);
+AND oa32 (w32,w22,p[3]);
+AND oa33 (w33,g[2],p[3]);
+
+OR(o0,w30,w31);
+OR(o1,w32,w33);
+OR(c4,o1,o0);
 endmodule
 
 
-
-module Full_Adder (a, b, cin, cout, sum);
+module Full_Adder_PG (a, b, cin, sum, p, g);
     input a, b, cin;
-    output cout, sum;
+    output sum, p, g;
 
     wire temp1, temp2, tempsum;
 
     Half_Adder ha1(a,b,temp1,tempsum);
     Half_Adder ha2(cin, tempsum, temp2, sum);
-    Majority m1(a,b,cin, cout);
+	
+	AND gi(g,a,b);
+	XOR pi(p,a,b);
 endmodule
 
 module Half_Adder(a, b, cout, sum);
@@ -81,7 +101,16 @@ module Half_Adder(a, b, cout, sum);
     XOR xor1(sum, a, b);
     AND and1(cout, a, b);
 endmodule
-
+/*
+module XOR_4bit (out,a,b);
+input [3:0] a,b;
+output [3:0] out;
+XOR x0 (out[0],a[0],b[0]);
+XOR x1 (out[1],a[1],b[1]);
+XOR x2 (out[2],a[2],b[2]);
+XOR x3 (out[3],a[3],b[3]);
+endmodule
+*/
 module XOR(out, in1, in2);
     input in1, in2;
     output out;
@@ -107,6 +136,16 @@ module Majority(a, b, c, out);
 
 endmodule
 
+/*
+module AND_4bit (out,a,b);
+input [3:0] a,b;
+output [3:0] out;
+AND a0 (out[0],a[0],b[0]);
+AND a1 (out[1],a[1],b[1]);
+AND a2 (out[2],a[2],b[2]);
+AND a3 (out[3],a[3],b[3]);
+endmodule
+*/
 module AND(out, in1, in2);
     input in1, in2;
     output out;
@@ -134,51 +173,4 @@ module XOR (out, in1, in2);
     nand n43(out,xor1,xor2);
 endmodule
 
-
-// module Full_Adder_4bit (a,b,cin,cout,sum);
-//     input [3:0]a,b;
-//     input cin;
-//     output cout;
-//     output [3:0] sum;
-//     wire wc1, wc2, wc3;
-
-//     Full_Adder fa0 (a[0], b[0], cin, sum[0], wc1);
-//     Full_Adder fa1 (a[1], b[1], wc1, sum[1], wc2);
-//     Full_Adder fa2 (a[2], b[2], wc2, sum[2], wc3);
-//     Full_Adder fa3 (a[3], b[3], wc3, sum[3], cout);
-
-// endmodule
-
-/*
-module tb_fulladd;  
-    // 1. Declare testbench variables  
-   reg [3:0] a;  
-   reg [3:0] b;  
-   reg c_in;  
-   wire [3:0] sum;  
-   integer i;  
-  
-    // 2. Instantiate the design and connect to testbench variables  
-   fulladd  fa0 ( .a (a),  
-                  .b (b),  
-                  .c_in (c_in),  
-                  .c_out (c_out),  
-                  .sum (sum));  
-  
-    // 3. Provide stimulus to test the design  
-   initial begin  
-      a <= 0;  
-      b <= 0;  
-      c_in <= 0;  
-  
-      $monitor ("a=0x%0h b=0x%0h c_in=0x%0h c_out=0x%0h sum=0x%0h", a, b, c_in, c_out, sum);  
-  
-        // Use a for loop to apply random values to the input  
-      for (i = 0; i < 5; i = i+1) begin  
-         #10 a <= $random;  
-             b <= $random;  
-                 c_in <= $random;  
-      end  
-   end  
-endmodule  
-*/
+s
