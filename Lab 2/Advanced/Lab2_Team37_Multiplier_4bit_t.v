@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 
 module Multiplier_4bit_t(a, b, p);
-
+    reg CLK = 1;
     reg [3:0] a = 4'b0;
     reg [3:0] b = 4'b0;
     wire [7:0] p;
@@ -12,20 +12,21 @@ module Multiplier_4bit_t(a, b, p);
         p.(p)
     );
 
-
+    #1 always CLK = ~CLK;
+    
     initial begin
         repeat (2 ** 4) begin
-            #1 a = a + 1'b1; b = 1'b0;
-            test();
+            @(posedge CLK) a = a + 1'b1; b = 1'b0;
+            @(negedge CLK) Test;
             repeat (2 ** 4) begin
-                #1 b = b + 1'b1;
-                test();
+                @(posedge CLK) b = b + 1'b1;
+                @(negedge CLK) Test;
             end
         end
         #1 $finish;
     end
 
-    task test;
+    task Test;
     reg [7:0] res;
     begin
         if(p != res) begin
@@ -33,7 +34,7 @@ module Multiplier_4bit_t(a, b, p);
             $write("a: %d\n", a);
             $write("b: %d\n", b);
             $write("WRONG p: %d\n", p);
-            $write("SUPPOSED p: %d\n", res);
+            $write("RIGHT p: %d\n", res);
             $display;
         end
         res = a*b;
