@@ -15,20 +15,30 @@ Carry_Look_Ahead_Adder_8bit(
 );
 
 initial begin
-    #10 a=8'b00000001; b=8'b00000001; cin=1'b0; //sum=b00000010
-    #10 a=8'b00011011; b=8'b11010111; cin=1'b0; //sum b11110010
-    #10 a=9'b01111011; b=8'b01111011; cin=1'b1; //sum 01001111, overflow
-
-    #10 a=8'b00001000; b=8'b00000001; cin=1'b1;
-    #10 a=8'b00000007; b=8'b00000001; cin=1'b0;
-    #10 a=8'b10011000; b=8'b10000001; cin=1'b1;
-    #10 a=8'b10101010; b=8'b01000001; cin=1'b0;
-    #10 a=8'b10001000; b=8'b00100001; cin=1'b0;
-    #10 a=8'b00101000; b=8'b00010000; cin=1'b1;
-    #10 a=8'b00001000; b=8'b00000010; cin=1'b1;
-
-
+  repeat (2 ** 8) begin
+    #1
+    {a, b} = {a, b} + 8'b1;
+    assert(a, b, c0, c8, s);
+    #1
+    c0 = c0 + 1'b1;
+    assert(a, b, c0, c8, s);
+  end
+  #1 $finish;
 end
 
+task assert;
+  input [7:0] a;
+  input [7:0] b;
+  input c0;
+  input c8;
+  input [7:0] s;
+  begin
+    t_a = a;
+    t_b = b;
+    t_cin = cin;
+    t_sum = (t_a + t_b + t_cin);
+    t_cout = (t_a + t_b + t_cin) >> 4;
+  end
+endtask
 
 endmodule

@@ -12,8 +12,39 @@ module Multiplier_4bit_t(a, b, p);
         p.(p)
     );
 
-    initial begin 
-        #10 a=4'b0000; b=4'b0000;
+
+    initial begin
+        repeat (2 ** 4) begin
+            #5 a = a + 1'b1; b = 1'b0;
+            test();
+            repeat (2 ** 4) begin
+                #1 b = b + 1'b1;
+                test();
+            end
+        end
+        #5 $finish;
+    end
+
+    task test;
+    reg [7:0] res;
+    begin
+        if(p != res) begin
+            $display("[ERROR]");
+            $write("a: %d\n", a);
+            $write("b: %d\n", b);
+            $write("WRONG p: %d\n", p);
+            $write("SUPPOSED p: %d\n", res);
+            $display;
+        end
+        res = a*b;
+    end
+    endtask
+
+endmodule
+
+
+/*
+ #10 a=4'b0000; b=4'b0000;
         #10 a=4'b0001; b=4'b0000;
         #10 a=4'b0010; b=4'b0000;
         #10 a=4'b0011; b=4'b0000;
@@ -284,9 +315,4 @@ module Multiplier_4bit_t(a, b, p);
         #10 a=4'b1101; b=4'b1111;
         #10 a=4'b1110; b=4'b1111;
         #10 a=4'b1111; b=4'b1111;
-
-        #10 $finish
-    end 
-
-
-endmodule
+/*
