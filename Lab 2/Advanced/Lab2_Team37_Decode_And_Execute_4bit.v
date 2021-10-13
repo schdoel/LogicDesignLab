@@ -1,5 +1,5 @@
 `timescale 1ns/1ps
-//`include "Universal_Gate.v"
+`include "Universal_Gate.v"
 
 module Decode_And_Execute(rs, rt, sel, rd);
 input [3:0] rs, rt;
@@ -8,62 +8,109 @@ output [3:0] rd;
 
 wire [3:0] o0,o1,o2,o3,o4,o5,o6,o7;
 // 000: ADD
-ADD_4bit e0(.a(rs[3:0]),.b(rt[3:0]),.out(o0[3:0]));
+ADD_4bit e0(
+    .a(rs[3:0]),
+    .b(rt[3:0]),
+    .out(o0[3:0])
+);
 
 // 001: SUB
-SUB_4bit e1(.a(rs[3:0]),.b(rt[3:0]),.out(o1[3:0]));
+SUB_4bit e1(
+    .a(rs[3:0]),
+    .b(rt[3:0]),
+    .out(o1[3:0])
+);
 
 // 010: BITWISE AND
-AND_4bit e2(.a(rs[3:0]),.b(rt[3:0]),.out(o2[3:0]));
+AND_4bit e2(
+    .a(rs[3:0]),
+    .b(rt[3:0]),
+    .out(o2[3:0])
+);
 
 // 011: BITWISE OR
-OR_4bit e3(.a(rs[3:0]),.b(rt[3:0]),.out(o3[3:0]));
+OR_4bit e3(
+    .a(rs[3:0]),
+    .b(rt[3:0]),
+    .out(o3[3:0])
+);
 
 // 100: RS CIR. LEFT SHIFT
-Assign_4bits e4(.in({rs[2:0],rs[3]}),.out(o4[3:0]));
+Assign_4bits e4(
+    .in({rs[2:0],rs[3]}),
+    .out(o4[3:0])
+);
 
 // 101: RT ARI. RIGHT SHIFT
-Assign_4bits e5(.in({rt[3],rt[3:1]}),.out(o5[3:0]));
+Assign_4bits e5(
+    .in({rt[3],rt[3:1]})
+    ,.out(o5[3:0])
+);
 
 wire cmp1,cmp2;
 // 110: COMPARE EQ
-EQ_3bit e60(.a(rs),.b(rt),.out(cmp1));
-Assign_4bits e61(.in({3'b111,cmp1}),.out(o6[3:0]));
+EQ_4bit e60(
+    .a(rs),
+    .b(rt),
+    .out(cmp1)
+);
+Assign_4bits e61(
+    .in({3'b111,cmp1}),
+    .out(o6[3:0])
+);
 
 // 111: COMPARE GT
-GT_3bit e70(.a(rs),.b(rt),.out(cmp2));
-Assign_4bits e71(.in({3'b101,cmp2}),.out(o7[3:0]));
+GT_4bit e70(
+    .a(rs),
+    .b(rt),
+    .out(cmp2)
+);
+Assign_4bits e71(
+    .in({3'b101,cmp2}),
+    .out(o7[3:0])
+);
 
-MUX_8x1_4bit (o0[3:0],o1[3:0],o2[3:0],o3[3:0],o4[3:0],o5[3:0],o6[3:0],o7[3:0],out[3:0]); 	
+MUX_8x1_4bit mx (
+    .a(o0[3:0]),
+    .b(o1[3:0]),
+    .c(o2[3:0]),
+    .d(o3[3:0]),
+    .e(o4[3:0]),
+    .f(o5[3:0]),
+    .g(o6[3:0]),
+    .h(o7[3:0]),
+    .sel(sel[2:0]),
+    .out(rd[3:0])
+); 	
 
 endmodule
 
+
 //MUX 8x1 from 9-MUXs 2x1
 module MUX_8x1_4bit (a,b,c,d,e,f,g,h,sel,out);
-input [3:0]a,b,c,d,e,f,g,h;
+input [3:0] a,b,c,d,e,f,g,h;
 input [2:0] sel;
 output [3:0] out; 
 	
-wire w1,w2;
+wire [3:0] w1,w2;
 MUX_4x1_4bit m1 (a[3:0],b[3:0],c[3:0],d[3:0],sel[1:0],w1[3:0]);
 MUX_4x1_4bit m2 (e[3:0],f[3:0],g[3:0],h[3:0],sel[1:0],w2[3:0]);
 MUX_2x1_4bit m3 (w1[3:0],w2[3:0],sel[2],out[3:0]);
 endmodule
 
 module MUX_4x1_4bit (a,b,c,d,sel,out);
-input [3:0]a,b,c,d;
+input [3:0] a,b,c,d;
 input [1:0] sel;
 output [3:0] out; 
 	
-wire w1,w2;
+wire [3:0] w1,w2;
 MUX_2x1_4bit m1 (a[3:0],b[3:0],sel[0],w1[3:0]);
 MUX_2x1_4bit m2 (c[3:0],d[3:0],sel[0],w2[3:0]);
 MUX_2x1_4bit m3 (w1[3:0],w2[3:0],sel[1],out[3:0]);
 endmodule
 
-
 module MUX_2x1_4bit (a,b,sel,out);
-input [3:0]a,b;
+input [3:0] a,b;
 input sel;
 output [3:0] out;
 
@@ -71,35 +118,10 @@ wire nsel;
 NOT n1 (sel,nsel);
 
 wire [3:0]o1,o2;
-AND_4x1 mx10 (a[0],b[0],nsel,1'b1,o1[0]);
-AND_4x1 mx20 (a[0],b[0], sel,1'b1,o2[0]);
-
-AND_4x1 mx11 (a[1],b[1],nsel,1'b1,o1[1]);
-AND_4x1 mx21 (a[1],b[1], sel,1'b1,o2[1]);
-
-AND_4x1 mx12 (a[2],b[2],nsel,1'b1,o1[2]);
-AND_4x1 mx22 (a[2],b[2], sel,1'b1,o2[2]);
-
-AND_4x1 mx13 (a[3],b[3],nsel,1'b1,o1[3]);
-AND_4x1 mx23 (a[3],b[3], sel,1'b1,o2[3]);
-
-OR out0(o1[0],o2[0],out[0]);
-OR out0(o1[1],o2[1],out[1]);
-OR out0(o1[2],o2[2],out[2]);
-OR out0(o1[3],o2[3],out[3]);
+AND_4bit a1(a[3:0],{4{nsel}},o1[3:0]);
+AND_4bit b1(b[3:0],{4{sel}},o2[3:0]);
+OR_4bit or1 (o1[3:0],o2[3:0],out[3:0]);
 endmodule
-
-
-module AND_4x1 (a,b,c,d,out);
-input a,b,c,d;
-output out;
-
-wire w1,w2;
-AND a1(a,b,w1);
-AND a2(c,d,w2);
-AND a3(w1,w2,out);
-endmodule
-//endMUX
 
 module AND_4bit (a,b,out);
 input [3:0] a,b;
@@ -118,8 +140,10 @@ OR o1 (a[1],b[1],out[1]);
 OR o2 (a[2],b[2],out[2]);
 OR o3 (a[3],b[3],out[3]);
 endmodule
+//endMUX
 
-// Ripple Carry Subtractor (4bit) A and B -> OUT (4bit)
+
+// Ripple Carry Subtractor (4bit) A + (-B) -> OUT (4bits)
 module SUB_4bit (a,b,out);
 input [3:0]a,b;
 output [3:0]out;
@@ -135,10 +159,10 @@ wire c0,c1,c2,c3;
 Full_Adder fa0 (a[0],nb[0],1'b1,out[0],c0);
 Full_Adder fa1 (a[1],nb[1],c0,out[1],c1);
 Full_Adder fa2 (a[2],nb[2],c1,out[2],c2);
-Full_Adder fa2 (a[3],nb[3],c2,out[3],c3);
+Full_Adder fa3 (a[3],nb[3],c2,out[3],c3);
 endmodule
 
-// Ripple Carry Adder (4bit) A and B -> OUT (4bit)
+// Ripple Carry Adder (4bit) A + B -> OUT (4bits)
 module ADD_4bit (a,b,out);
 input [3:0]a,b;
 output [3:0]out;
@@ -147,7 +171,7 @@ wire c0,c1,c2,c3;
 Full_Adder fa0 (a[0],b[0],1'b0,out[0],c0);
 Full_Adder fa1 (a[1],b[1],c0,out[1],c1);
 Full_Adder fa2 (a[2],b[2],c1,out[2],c2);
-Full_Adder fa2 (a[3],b[3],c2,out[3],c3);
+Full_Adder fa3 (a[3],b[3],c2,out[3],c3);
 endmodule
 
 // FULL ADDER 1 bit
@@ -155,7 +179,7 @@ module Full_Adder(a,b,cin,sum,cout);
 input a,b,cin;
 output sum,cout;
 
-// Total Sum
+//SUM
 wire w1,w2,w3,w4,w5,w6,w7,w8,w9,w10;
 Universal_Gate u1(a,b,w1);
 Universal_Gate u2(b,a,w2);
@@ -168,7 +192,7 @@ NOT u8(w7,w8);
 Universal_Gate u9(w8,w6,w9);
 NOT u10(w9,sum);
 
-// Generate Carry
+//COUT
 wire nb,nc;
 NOT neg1(b,nb);
 NOT neg2(cin,nc);
@@ -202,49 +226,62 @@ NOT a3(nout,out);
 endmodule
 
 // Compare A==B
-module EQ_3bit(a,b,out);
-input [2:0]a,b;
+module EQ_4bit(a,b,out);
+input [3:0]a,b;
 output out;
 
-wire q0,q1,q2,q3,q4;
+wire q0,q1,q2,q3,q4,q5,q6;
 XOR eq0(a[0],b[0],q0);
 XOR eq1(a[1],b[1],q1);
 XOR eq2(a[2],b[2],q2);
+XOR eq3(a[3],b[3],q3);
 
-OR eq3(q0,q1,q3);
-OR eq4(q2,q3,q4);
+OR eq4(q0,q1,q4);
+OR eq5(q2,q3,q5);
 
-NOT (q4,out);
+OR eq6(q4,q5,q6);
+
+NOT n1(q6,out);
 endmodule
 
 // Compare A>B
-module GT_3bit(a,b,out);
-input [2:0]a,b;
+module GT_4bit(a,b,out);
+input [3:0]a,b;
 output out;
 
 // qi = ai>bi
-wire q0,q1,q2,q3,q4,q5,q6;
+wire q0,q1,q2,q3,q4,q5,q6,q7,q8,q9,q10;
 Universal_Gate gt0(a[0],b[0],q0);
 Universal_Gate gt1(a[1],b[1],q1);
 Universal_Gate gt2(a[2],b[2],q2);
+Universal_Gate gt3(a[3],b[3],q3);
 
-wire nq3,nq4;
-// q3 = a1==b1
-XOR gt3(a[1],b[1],nq3);
-NOT xor3(nq3,q3);
-// q4 = a2==b2
-XOR gt4(a[2],b[2],nq4);
+wire nq4,nq5,nq6;
+// q4 = a1==b1
+XOR gt4(a[1],b[1],nq4);
 NOT xor4(nq4,q4);
+// q5 = a2==b2
+XOR gt5(a[2],b[2],nq5);
+NOT xor5(nq5,q5);
+// q6 = a3==b3
+XOR gt6(a[3],b[3],nq6);
+NOT xor6(nq6,q6);
 
-// q6 = a2==b2 & a1==a1 & a0>b0
-AND gt5(q4,q3,q5);
-AND gt6(q5,q0,q6);
-// q7 = a2==b2 & a1>b1
-AND gt7(q4,q1,q7);
+// q9 = a3==b3 & a2==b2 & a1==a1 & a0>b0
+AND gt7(q6,q5,q7); //a3==b3 a2==b2
+AND gt8(q7,q4,q8); //a1==b1
+AND gt9(q8,q0,q9); //a0>b0
 
-//OR ALL
-OR gt8(q6,q7,q8);
-OR gt9(q8,q2,out);
+// q10 = a3==b3 & a2==b2 & a1>b1
+AND gt10(q7,q1,q10);
+
+// q11 = a3==b3 & a2>b2
+AND gt11(q6,q2,q11);
+
+//OR ALL with a3>b3
+OR gt12(q3,q9,q12);
+OR gt13(q10,q11,q13);
+OR gt14(q12,q13,out);
 
 endmodule
 
@@ -269,7 +306,7 @@ endmodule
 module NOT(in,out);
 input in;
 output out;
-Universal_Gate no (1'b1,in,out);
+Universal_Gate neg (1'b1,in,out);
 endmodule
 
 // XOR 2x1 Gate
@@ -281,17 +318,6 @@ wire o1,o2,o3;
 Universal_Gate xr1 (a,b,o1);
 Universal_Gate xr2 (b,a,o2);
 NOT xr3 (o2,o3);
-Universal_Gate xr4 (o1,o3,o4);
+Universal_Gate xr4 (o3,o1,o4);
 NOT xr5 (o4,out);
-endmodule
-
-// UNIVERSAL Gate 
-module Universal_Gate(a, b, out);
-input a, b;
-output out;
-
-wire w1;
-not not1 (w1,b);
-and and1 (out,a,w1);
-
 endmodule
