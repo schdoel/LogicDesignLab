@@ -15,14 +15,14 @@ module Multiplier_4bit_t(a, b, p);
 
     initial begin
         repeat (2 ** 4) begin
-            #5 a = a + 1'b1; b = 1'b0;
+            #1 a = a + 1'b1; b = 1'b0;
             test();
             repeat (2 ** 4) begin
                 #1 b = b + 1'b1;
                 test();
             end
         end
-        #5 $finish;
+        #1 $finish;
     end
 
     task test;
