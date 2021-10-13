@@ -6,7 +6,7 @@ reg CLK = 1;
 
 reg [2:0] sel = 3'b0;
 reg [3:0] rs = 4'b0;
-reg [30] rt = 4'b0;
+  reg [3:0] rt = 4'b0;
 wire [3:0] rd;
 
 
