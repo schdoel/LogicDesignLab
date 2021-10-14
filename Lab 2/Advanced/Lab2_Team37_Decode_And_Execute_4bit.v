@@ -50,8 +50,8 @@ Assign_4bits e5(
 wire cmp1,cmp2;
 // 110: COMPARE EQ
 EQ_4bit e60(
-    .a(rs),
-    .b(rt),
+    .a(rs[3:0]),
+    .b(rt[3:0]),
     .out(cmp1)
 );
 Assign_4bits e61(
@@ -61,8 +61,8 @@ Assign_4bits e61(
 
 // 111: COMPARE GT
 GT_4bit e70(
-    .a(rs),
-    .b(rt),
+    .a(rs[3:0]),
+    .b(rt[3:0]),
     .out(cmp2)
 );
 Assign_4bits e71(
@@ -140,7 +140,7 @@ OR o1 (a[1],b[1],out[1]);
 OR o2 (a[2],b[2],out[2]);
 OR o3 (a[3],b[3],out[3]);
 endmodule
-//endMUX
+//endMUX 8x1 from 9-MUXs 2x1
 
 
 // Ripple Carry Subtractor (4bit) A + (-B) -> OUT (4bits)

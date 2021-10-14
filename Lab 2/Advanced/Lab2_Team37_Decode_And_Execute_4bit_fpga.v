@@ -8,7 +8,6 @@ output [6:0] c;
 output [3:0] an;
 
 wire [3:0] rd;
-
 Decode_And_Execute de (
     .rs(rs[3:0]),
     .rt(rt[3:0]),
@@ -17,7 +16,8 @@ Decode_And_Execute de (
 );
 
 Assign_4bits as ({4'b1110},an[3:0]);
-
+//a[6]=A
+//
 wire tmp;
 MUX_16x1_8bit mux (
  .a(8'b10000001), //0
@@ -122,7 +122,7 @@ MUX_8x1_4bit mx (
     .h(o7[3:0]),
     .sel(sel[2:0]),
     .out(rd[3:0])
-);  
+); 	
 
 endmodule
 
@@ -145,8 +145,8 @@ input [7:0] a,b,c,d,e,f,g,h;
 input [2:0] sel;
 output [7:0] out;
 
-MUX_8x1_4bit m30 (a[3:0],b[3:0],c[3:0],d[3:0],e[3:0],f[3:0],g[3:0],h[3:0],sel[1:0],out[3:0]);
-MUX_8x1_4bit m74 (a[7:4],b[7:4],c[7:4],d[7:4],e[7:4],f[7:4],g[7:4],h[7:4],sel[1:0],out[7:4]);
+MUX_8x1_4bit m30 (a[3:0],b[3:0],c[3:0],d[3:0],e[3:0],f[3:0],g[3:0],h[3:0],sel[2:0],out[3:0]);
+MUX_8x1_4bit m74 (a[7:4],b[7:4],c[7:4],d[7:4],e[7:4],f[7:4],g[7:4],h[7:4],sel[2:0],out[7:4]);
 
 endmodule
 
@@ -166,7 +166,7 @@ module MUX_8x1_4bit (a,b,c,d,e,f,g,h,sel,out);
 input [3:0] a,b,c,d,e,f,g,h;
 input [2:0] sel;
 output [3:0] out; 
- 
+	
 wire [3:0] w1,w2;
 MUX_4x1_4bit m1 (a[3:0],b[3:0],c[3:0],d[3:0],sel[1:0],w1[3:0]);
 MUX_4x1_4bit m2 (e[3:0],f[3:0],g[3:0],h[3:0],sel[1:0],w2[3:0]);
@@ -177,7 +177,7 @@ module MUX_4x1_4bit (a,b,c,d,sel,out);
 input [3:0] a,b,c,d;
 input [1:0] sel;
 output [3:0] out; 
- 
+	
 wire [3:0] w1,w2;
 MUX_2x1_4bit m1 (a[3:0],b[3:0],sel[0],w1[3:0]);
 MUX_2x1_4bit m2 (c[3:0],d[3:0],sel[0],w2[3:0]);
@@ -243,7 +243,6 @@ input [3:0]a,b;
 output [3:0]out;
 
 wire c0,c1,c2,c3;
-
 Full_Adder fa0 (a[0],b[0],1'b0,out[0],c0);
 Full_Adder fa1 (a[1],b[1],c0,out[1],c1);
 Full_Adder fa2 (a[2],b[2],c1,out[2],c2);
@@ -257,7 +256,6 @@ output sum,cout;
 
 //SUM
 wire w1,w2,w3,w4,w5,w6,w7,w8,w9,w10;
-
 Universal_Gate u1(a,b,w1);
 Universal_Gate u2(b,a,w2);
 NOT u3(w1,w3);
@@ -398,3 +396,4 @@ NOT xr3 (o2,o3);
 Universal_Gate xr4 (o3,o1,o4);
 NOT xr5 (o4,out);
 endmodule
+

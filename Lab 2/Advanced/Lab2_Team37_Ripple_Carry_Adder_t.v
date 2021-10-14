@@ -1,4 +1,4 @@
-module Ripple_Carry_Adder_t(a, b, cin, cout, sum);
+module Ripple_Carry_Adder_t;
     reg CLK = 1;
     reg [7:0] a = 8'b0;
     reg [7:0] b = 8'b0;
@@ -16,37 +16,31 @@ module Ripple_Carry_Adder_t(a, b, cin, cout, sum);
     always #1 CLK = ~CLK;
 
     initial begin
-        {a,b,cin} = 17'b0;
-        repeat (2 ** 17) begin
+        {a,b,cin} = 9'b0;
+
+        repeat (2 ** 9) begin
             @(posedge CLK)
                 Test;
             @(negedge CLK)
-                {a,b,cin} = {a,b,cin} + 17'b1;
+                {a,b,cin} = {a,b,cin} + 1'b1;
         end
         $finish;
     end
 
+
+    
+    //utility task for testing
     task Test;
-        begin
-        if (sum !== (a + b + cin) & 32'b0000000011111111) begin
-            $display("[ERROR] sum");
-            $write("a: %d\t", a);
-            $write("b: %d\t", b);
-            $write("cin: %d\n", cin);
-            $write("sum: %d\t", sum);
-            $write("should be: %d\n", {(a + b + c0) & 16'b0000000011111111});
-            $display;
-        end
-        if (cout !== &((a + b + cin) & 32'b000000100000000)) begin
-            $display("[ERROR] cout");
-            $write("a: %d\t", a);
-            $write("b: %d\t", b);
-            $write("cin: %d\n", cin);
-            $write("cout: %d\t", cout);
-            $write("should be: %b\n",&((a + b + c0) & 16'b000000100000000));
+    begin
+        if({cout, sum}!==(a+b+cin)) begin
+            $display("[ERROR]");
+            $write("a:%d",a);
+            $write("b:%d",b);
+            $write("cin:%d",cin);
+            $write("cout:%d",cout);
+            $write("Sum:%d",sum);
             $display;
         end
     end
     endtask
-
 endmodule
