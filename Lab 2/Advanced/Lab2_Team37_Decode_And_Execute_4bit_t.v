@@ -1,4 +1,4 @@
-`timescale 1ns/1ps
+`timescale 100ps/1ps
 
 module Decode_and_Execute_t;
 
@@ -6,27 +6,27 @@ reg CLK = 1;
 
 reg [2:0] sel = 3'b0;
 reg [3:0] rs = 4'b0;
-  reg [3:0] rt = 4'b0;
+reg [30] rt = 4'b0;
 wire [3:0] rd;
 
 
-Decode_and_Execute dae_i (
+Decode_and_Execute dae_0 (
   .sel(sel),
   .rs(rs),
   .rt(rt),
   .rd(rd)
 );
 
-always #1 CLK = ~CLK;
+// always #1 CLK = ~CLK;
 
 initial begin
   sel = 3'b000;
   repeat (2 ** 3) begin
     {rs, rt} = 8'b0;
     repeat (2 ** 8) begin
-      @ (posedge CLK)
-        Test;
-      @ (negedge CLK)
+    //   @ (posedge CLK)
+    //     Test;
+    //   @ (negedge CLK)
         {rs, rt} = {rs, rt} + 8'b1;
     end
     sel = sel + 3'b001;
