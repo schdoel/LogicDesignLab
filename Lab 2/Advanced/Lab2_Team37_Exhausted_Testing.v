@@ -53,3 +53,41 @@ initial begin
 end
 
 endmodule
+
+/*
+module testbench_4bitadder
+
+reg [3:0] ta, testbench; reg tc; //initialise test vector
+
+wire [3:0] tsum,; wire tcr;
+
+adder4bit fa4 (.sum(tsum), .cr(tcr),.a(ta), .b( testbench), .c(tc));
+
+initial
+
+begin
+
+#0 ta=4’b0000; testbench=4’b0000; tc=1’b0;
+
+#10 ta=4’b0100; testbench=4’b0011; tc=1’b1;
+
+#20 ta=4’b0011; testbench=4’b0111; tc=1’b1;
+
+#30 ta=4’b1000; testbench=4’b0100; tc=1’b0;
+
+#40 ta=4’b0101; testbench=4’b0101; tc=1’b1;
+
+(or we can also write : #10 ta=4’d5; testbench=4’d6; tc=1’d1;)
+
+end
+
+$initial
+
+begin
+
+$monitor (“$time ta=%d testbench=%d tc=%c tsum=%d tcr=%d”, ta, testbench,tc,tsum,tcr);
+
+end
+
+endmodule
+*/
